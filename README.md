@@ -1,405 +1,125 @@
-# 🚗 API de Ventas de Autos
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.120-green)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-12%2B-336791)](https://www.postgresql.org/)
 
-API REST completa para la gestión de inventario de autos y registro de ventas, desarrollada con **FastAPI**, **SQLModel** y **PostgreSQL**.
+## Descripción General
 
-
-
----
+Una API REST completa construida con **FastAPI**, **SQLModel** y **PostgreSQL** para gestionar inventario de vehículos y transacciones de ventas. La aplicación demuestra una arquitectura lista para producción con código limpio, validación exhaustiva y patrones de diseño modernos.
 
 ## ✨ Características Principales
 
-- ✅ **CRUD completo** para Autos y Ventas
-- ✅ **Validaciones robustas** con Pydantic
-- ✅ **Generación automática** de números de chasis (VIN de 17 caracteres)
-- ✅ **Búsquedas avanzadas** (por chasis, comprador, marca, modelo)
-- ✅ **Paginación** con skip/limit
-- ✅ **Relaciones One-to-Many** entre Autos y Ventas
-- ✅ **Documentación automática** con Swagger UI
-- ✅ **Tests automatizados** con pytest (14+ tests)
-- ✅ **Patrón Repository** implementado
-- ✅ **Dependency Injection** nativo de FastAPI
+- **CRUD Completo**: Operaciones completas para vehículos y ventas
+- **Generación Automática de VIN**: VIN único de 17 caracteres por vehículo (estándar VIN)
+- **Filtrado Avanzado**: Búsqueda por marca, modelo, chasis, nombre del comprador
+- **Paginación**: Paginación basada en skip/limit para todas las listas
+- **Relaciones Uno-a-Muchos**: Manejo automático de relaciones
+- **Documentación Interactiva**: Swagger UI + ReDoc
+- **Patrón Repositorio**: Abstracción limpia de acceso a datos
+- **Inyección de Dependencias**: Sistema DI nativo de FastAPI
+- **Seguridad de Tipos**: Anotaciones de tipos Python completas
+- **Soporte Async**: Async/await en toda la aplicación
 
----
+## 🛠️ Stack Tecnológico
 
-## 🛠️ Tecnologías Utilizadas
+| Tecnología | Versión | Propósito |
+|-----------|---------|---------|
+| FastAPI | 0.120.4 | Framework web |
+| SQLModel | 0.0.27 | ORM |
+| PostgreSQL | 12+ | Base de datos |
+| Uvicorn | 0.38.0 | Servidor ASGI |
+| Pydantic | 2.5+ | Validación |
+| Pytest | 8.4.2 | Testing |
 
-| Tecnología | Propósito |
-|-----------|----------|
-| **FastAPI** | Framework web moderno y asincrónico |
-| **SQLModel** | ORM combinando SQLAlchemy + Pydantic |
-| **PostgreSQL** | Base de datos relacional |
-| **Pydantic** | Validación de datos |
-| **pytest** | Framework de testing |
-| **Uvicorn** | Servidor ASGI |
-
----
-
-## 📋 Requisitos Previos
+## 📋 Requisitos
 
 - Python 3.10+
 - PostgreSQL 12+
-- pip o conda
+- Git
 
----
+## 🚀 Inicio Rápido
 
-## 🚀 Instalación y Configuración
-
-### 1️⃣ Clonar el repositorio
+### 1. Clonar y Configurar
 
 ```bash
 git clone https://github.com/jeredeldo/utn-tup-2025-fastapi.git
-cd utn-tup-2025-fastapi
-```
-
-### 2️⃣ Crear y activar entorno virtual
-
-**Windows (PowerShell):**
-```bash
+cd back
 python -m venv venv
-.\venv\Scripts\Activate.ps1
-```
-
-**Linux/Mac:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3️⃣ Instalar dependencias
-
-```bash
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4️⃣ Configurar PostgreSQL
-
-Crea la base de datos usando psql o DBeaver:
+### 2. Configurar
 
 ```bash
-psql -U postgres -c "CREATE DATABASE autos_db;"
+cp .env.example .env
+# Editar .env con las credenciales de PostgreSQL
 ```
 
-### 5️⃣ Configurar variables de entorno
-
-Crea un archivo `.env` en la raíz del proyecto:
-
-```env
-DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/autos_db
-```
-
-> **Nota:** Reemplaza `usuario` y `contraseña` con tus credenciales de PostgreSQL
-
-### 6️⃣ Ejecutar la aplicación
+### 3. Ejecutar
 
 ```bash
 uvicorn main:app --reload
 ```
 
-La API estará disponible en: **http://localhost:8000**
+Acceso:
+- **API**: http://localhost:8000
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
-Documentación interactiva: **http://localhost:8000/docs**
+## 📡 Endpoints de la API
 
----
+### Vehículos
 
-## 📡 API Endpoints
-
-### **AUTOS**
-
-#### ➕ Crear Auto
-```http
-POST /autos/
-Content-Type: application/json
-
-{
-  "marca": "Toyota",
-  "modelo": "Corolla",
-  "año": 2023
-}
 ```
-**Respuesta (201):** Auto con ID y número de chasis autogenerado
-
-#### ➕ Crear Múltiples Autos
-```http
-POST /autos/batch/
-Content-Type: application/json
-
-[
-  {"marca": "Toyota", "modelo": "Corolla", "año": 2023},
-  {"marca": "Ford", "modelo": "Focus", "año": 2022}
-]
+POST   /autos/             Crear vehículo
+POST   /autos/batch/       Crear múltiples
+GET    /autos/             Listar (con filtros)
+GET    /autos/{id}         Obtener por ID
+GET    /autos/chasis/{vin} Obtener por VIN
+PUT    /autos/{id}         Actualizar
+DELETE /autos/{id}         Eliminar
 ```
 
-#### 📋 Listar Autos
-```http
-GET /autos/?skip=0&limit=10&marca=Toyota&modelo=Corolla
-```
-**Parámetros opcionales:**
-- `marca` - Filtrar por marca (búsqueda parcial, case-insensitive)
-- `modelo` - Filtrar por modelo (búsqueda parcial, case-insensitive)
-- `skip` - Número de registros a saltar (default: 0)
-- `limit` - Máximo de registros a retornar (default: 10)
+### Ventas
 
-#### 🔍 Obtener Auto por ID
-```http
-GET /autos/{auto_id}
+```
+POST   /ventas/              Crear venta
+POST   /ventas/batch/        Crear múltiples
+GET    /ventas/              Listar ventas
+GET    /ventas/{id}          Obtener por ID
+GET    /ventas/auto/{id}     Obtener por vehículo
+GET    /ventas/comprador/{nombre} Obtener por comprador
+PUT    /ventas/{id}          Actualizar
+DELETE /ventas/{id}          Eliminar
 ```
 
-#### 🔎 Buscar Auto por Número de Chasis
-```http
-GET /autos/chasis/{numero_chasis}
-```
-
-#### 📊 Obtener Auto con sus Ventas
-```http
-GET /autos/{auto_id}/with-ventas
-```
-
-#### ✏️ Actualizar Auto
-```http
-PUT /autos/{auto_id}
-Content-Type: application/json
-
-{
-  "marca": "Toyota",
-  "modelo": "Camry",
-  "año": 2024
-}
-```
-> **Nota:** No es posible cambiar el número de chasis
-
-#### 🗑️ Eliminar Auto
-```http
-DELETE /autos/{auto_id}
-```
-
----
-
-### **VENTAS**
-
-#### ➕ Crear Venta
-```http
-POST /ventas/
-Content-Type: application/json
-
-{
-  "nombre_comprador": "Juan Pérez",
-  "precio": 25000.00,
-  "fecha_venta": "2025-11-02T10:30:00",
-  "auto_id": 1
-}
-```
-**Validaciones automáticas:**
-- El auto debe existir
-- Nombre no puede estar vacío
-- Precio debe ser > 0
-- Fecha no puede ser futura
-
-#### ➕ Crear Múltiples Ventas
-```http
-POST /ventas/batch/
-Content-Type: application/json
-
-[
-  {"nombre_comprador": "Juan", "precio": 25000, "fecha_venta": "2025-11-02", "auto_id": 1},
-  {"nombre_comprador": "María", "precio": 30000, "fecha_venta": "2025-11-01", "auto_id": 2}
-]
-```
-
-#### 📋 Listar Ventas
-```http
-GET /ventas/?skip=0&limit=10
-```
-
-#### 🔍 Obtener Venta por ID
-```http
-GET /ventas/{venta_id}
-```
-
-#### 📊 Listar Ventas de un Auto Específico
-```http
-GET /ventas/auto/{auto_id}
-```
-
-#### 🔎 Buscar Ventas por Nombre de Comprador
-```http
-GET /ventas/comprador/{nombre}
-```
-**Nota:** Búsqueda parcial, case-insensitive
-
-#### ✏️ Actualizar Venta
-```http
-PUT /ventas/{venta_id}
-Content-Type: application/json
-
-{
-  "nombre_comprador": "Juan Pérez García",
-  "precio": 26000.00,
-  "fecha_venta": "2025-11-03"
-}
-```
-
-#### 🗑️ Eliminar Venta
-```http
-DELETE /ventas/{venta_id}
-```
-
----
-
-## ✔️ Validaciones Implementadas
+## 💾 Esquema de Base de Datos
 
 ### Auto
-| Campo | Regla |
-|-------|-------|
-| **Año** | Debe estar entre 1900 y el año actual |
-| **Número de Chasis** | 17 caracteres alfanuméricos, autogenerado, sin I/O/Q (formato VIN) |
-| **Marca** | No puede estar vacío |
-| **Modelo** | No puede estar vacío |
+- `id` (Integer, PK)
+- `marca` (String, Indexed)
+- `modelo` (String, Indexed)
+- `año` (Integer)
+- `numero_chasis` (String, Unique)
 
 ### Venta
-| Campo | Regla |
-|-------|-------|
-| **Nombre Comprador** | No puede estar vacío |
-| **Precio** | Debe ser mayor a 0 |
-| **Fecha Venta** | No puede ser en el futuro |
-| **Auto ID** | El auto debe existir en la BD |
+- `id` (Integer, PK)
+- `auto_id` (Integer, FK)
+- `nombre_comprador` (String)
+- `precio` (Float)
+- `fecha_venta` (DateTime)
 
----
+## ✔️ Reglas de Validación
 
-## 📁 Estructura del Proyecto
+- **Año**: 1900 al año actual
+- **Precio**: Mayor a 0
+- **Nombre del Comprador**: No vacío
+- **Fecha de Venta**: No en el futuro
+- **VIN**: Auto-generado, único, formato de 17 caracteres
 
-```
-.
-├── main.py                 # Punto de entrada FastAPI
-├── requirements.txt        # Dependencias del proyecto
-├── .env                    # Variables de entorno (crear)
-├── .gitignore              # Archivos a ignorar en Git
-├── README.md               # Este archivo
-│
-├── app/                    # Paquete principal
-│   ├── __init__.py
-│   ├── database.py         # Conexión PostgreSQL y gestión de sesiones
-│   ├── models.py           # Modelos SQLModel (Auto, Venta y esquemas)
-│   ├── repositories.py     # AutoRepository, VentaRepository (patrón Repository)
-│   ├── routers_autos.py    # Endpoints GET, POST, PUT, DELETE /autos
-│   ├── routers_ventas.py   # Endpoints GET, POST, PUT, DELETE /ventas
-│   └── utils.py            # Funciones de validación y utilidades
-│
-├── tests/                  # Tests
-│   ├── __init__.py
-│   └── test_endpoints.py   # Suite de tests con pytest (14+ tests)
-│
-└── venv/                   # Entorno virtual (NO commitear)
-```
+## 📝 Ejemplos de Solicitudes
 
----
-
-## 🧪 Tests
-
-### Ejecutar todos los tests
-
-```bash
-pytest tests/ -v
-```
-
-### Ver cobertura de tests
-
-```bash
-pytest tests/ --cov=app --cov-report=html
-```
-
-### Pruebas incluidas
-
-- ✅ Creación de Autos y Ventas
-- ✅ Validaciones de año, precio, fecha, chasis
-- ✅ Búsquedas y filtros (marca, modelo, comprador)
-- ✅ Paginación (skip/limit)
-- ✅ Eliminación de registros
-- ✅ Manejo de errores 404, 422
-- ✅ Relaciones One-to-Many
-
----
-
-## 🏗️ Arquitectura
-
-### Patrón Repository
-
-La aplicación implementa el **patrón Repository** para encapsular la lógica de acceso a datos:
-
-```python
-# Ejemplo de uso
-@router.post("/autos/", response_model=AutoRead)
-def create_auto(auto: AutoCreate, repo: AutoRepository = Depends(get_auto_repo)):
-    # El repositorio maneja toda la lógica de BD
-    return repo.create(auto)
-```
-
-### Dependency Injection
-
-FastAPI inyecta dependencias automáticamente:
-
-```python
-def get_auto_repo(session: Session = Depends(get_session)):
-    return AutoRepository(session)
-```
-
-### Estructura de Modelos
-
-- **Models (DB)**: `Auto`, `Venta` - Modelos que se persisten en BD
-- **Create Schemas**: `AutoCreate`, `VentaCreate` - Para validar entrada
-- **Read Schemas**: `AutoRead`, `VentaRead` - Para serializar salida
-- **Relational**: `AutoReadWithVentas` - Modelos con relaciones
-
----
-
-## 🐛 Troubleshooting
-
-### ❌ Error: `DATABASE_URL not found`
-
-**Solución:** Verifica que el archivo `.env` existe en la raíz con la URL correcta.
-
-```bash
-echo "DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/autos_db" > .env
-```
-
-### ❌ Error de conexión a PostgreSQL
-
-**Solución:** Asegúrate de que:
-1. PostgreSQL está corriendo (`sudo service postgresql start` en Linux)
-2. La BD `autos_db` existe
-3. Las credenciales en `.env` son correctas
-
-### ❌ Tests no funcionan
-
-**Solución:** Ejecutá desde la raíz del proyecto:
-
-```bash
-pytest tests/ -v
-```
-
-Asegúrate de tener pytest instalado:
-
-```bash
-pip install pytest httpx
-```
-
-### ❌ Módulos no encontrados
-
-**Solución:** Asegúrate de tener el entorno virtual activado:
-
-```bash
-# Windows
-.\venv\Scripts\Activate.ps1
-
-# Linux/Mac
-source venv/bin/activate
-```
-
----
-
-## 📚 Ejemplos Rápidos
-
-### Crear un auto
-
+### Crear Vehículo
 ```bash
 curl -X POST "http://localhost:8000/autos/" \
   -H "Content-Type: application/json" \
@@ -410,102 +130,101 @@ curl -X POST "http://localhost:8000/autos/" \
   }'
 ```
 
-### Listar autos con filtro
-
-```bash
-curl "http://localhost:8000/autos/?marca=Toyota&limit=5"
-```
-
-### Crear una venta
-
+### Crear Venta
 ```bash
 curl -X POST "http://localhost:8000/ventas/" \
   -H "Content-Type: application/json" \
   -d '{
+    "auto_id": 1,
     "nombre_comprador": "Juan Pérez",
     "precio": 25000.00,
-    "fecha_venta": "2025-11-02T10:30:00",
-    "auto_id": 1
+    "fecha_venta": "2024-11-19T10:30:00"
   }'
 ```
 
----
+## 📂 Estructura del Proyecto
 
-## ⚡ Inicio Rápido (One-liner)
-
-```bash
-# Setup, env, BD y servidor
-python -m venv venv && \
-(.\venv\Scripts\Activate.ps1; pip install -r requirements.txt; `
-echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/autos_db" > .env; `
-uvicorn main:app --reload)
+```
+.
+├── main.py                 # Punto de entrada
+├── config.py               # Configuración
+├── requirements.txt        # Dependencias
+├── .env.example           # Plantilla de variables de entorno
+├── README.md              # Documentación principal
+├── README_API.md          # Referencia de API
+├── DEVELOPMENT.md         # Guía de desarrollo
+└── app/
+    ├── __init__.py
+    ├── database.py        # Configuración de BD
+    ├── models.py          # Definiciones SQLModel
+    ├── repositories.py    # Acceso a datos
+    ├── routers_autos.py   # Rutas de vehículos
+    ├── routers_ventas.py  # Rutas de ventas
+    └── utils.py           # Utilidades
 ```
 
+## 🧪 Testing
+
+```bash
+# Ejecutar pruebas
+pytest
+
+# Verbose
+pytest -v
+
+# Con cobertura
+pytest --cov=app
+```
+
+## 📄 Documentación
+
+- [Referencia de API](./README_API.md) - Documentación detallada de endpoints
+- [Desarrollo](./DEVELOPMENT.md) - Flujo de trabajo de desarrollo
+
+## 🔧 Configuración
+
+### Variables de Entorno
+
+```env
+DATABASE_URL=postgresql://usuario:contraseña@localhost/car_sales
+DEBUG=false
+PORT=8000
+HOST=0.0.0.0
+```
+
+## 📊 Códigos de Estado
+
+| Código | Significado |
+|------|---------|
+| 200 | OK |
+| 201 | Creado |
+| 204 | Sin contenido |
+| 400 | Solicitud inválida |
+| 404 | No encontrado |
+| 500 | Error del servidor |
+
+## 🏗️ Arquitectura
+
+### Patrones de Diseño
+- **Patrón Repositorio**: Abstracción de acceso a datos
+- **Inyección de Dependencias**: Sistema DI de FastAPI
+- **Separación de Modelos**: Modelos de BD vs esquemas de API
+
+### Calidad del Código
+- Anotaciones de tipo completas
+- Docstrings exhaustivos
+- Separación limpia de responsabilidades
+- Arquitectura async/await
+
+## 📄 Licencia
+
+MIT License
+
+## 👨‍💼 Autor
+
+**Equipo de Desarrollo**  
+Repositorio: [github.com/jeredeldo/utn-tup-2025-fastapi](https://github.com/jeredeldo/utn-tup-2025-fastapi)
+
 ---
 
-## 📝 Notas Importantes
-
-- Los números de chasis se generan automáticamente al crear un Auto (17 caracteres, formato VIN)
-- El número de chasis **no puede ser modificado** al actualizar un Auto (protegido)
-- La fecha de venta **no puede ser en el futuro**
-- Un Auto puede tener **múltiples Ventas** asociadas
-- Todos los endpoints tienen **validaciones de integridad referencial**
-- Las búsquedas son **case-insensitive** y permiten búsquedas parciales
-
----
-
-## ✅ Criterios de Evaluación (Trabajo Práctico)
-
-### Funcionalidad (40 puntos)
-- ✅ Todos los endpoints implementados y funcionan correctamente
-- ✅ CRUD completo para Autos y Ventas
-- ✅ Validaciones de datos correctas y completas
-- ✅ Relaciones One-to-Many funcionando perfectamente
-
-### Arquitectura y Patrones (25 puntos)
-- ✅ Patrón Repository implementado correctamente
-- ✅ Separación clara de responsabilidades
-- ✅ Dependency Injection con FastAPI
-- ✅ Estructura de archivos organizada y escalable
-
-### Calidad del Código (20 puntos)
-- ✅ Código limpio, legible y documentado
-- ✅ Manejo apropiado de errores HTTP (404, 422, etc.)
-- ✅ Tipado correcto con type hints
-- ✅ Convenciones de nombres consistentes
-
-### Base de Datos (15 puntos)
-- ✅ PostgreSQL configurado correctamente
-- ✅ Tablas creadas automáticamente con SQLModel
-- ✅ Relaciones de BD implementadas correctamente
-- ✅ Conexión funcional y persistencia de datos
-
----
-
-## 📞 Soporte
-
-Si encuentras problemas:
-
-1. Revisa la sección de **Troubleshooting**
-2. Verifica que PostgreSQL está corriendo
-3. Consulta la documentación en `http://localhost:8000/docs`
-4. Ejecuta los tests para validar el setup: `pytest tests/ -v`
-
----
-
-## 📄 Entregables
-
-- ✅ Código fuente completo en GitHub
-- ✅ Base de datos PostgreSQL configurada
-- ✅ README.md con instrucciones claras
-- ✅ requirements.txt con todas las dependencias
-- ✅ Documentación automática en Swagger UI
-- ✅ Tests automatizados (14+ tests)
-- ✅ .env.example con plantilla de configuración
-
----
-
-**Desarrollo:** Programación IV - UTN TUP 2025
-
-**Versión:** 1.0  
-**Última actualización:** Noviembre 2025
+**Versión**: 1.0.0 | **Última Actualización**: Noviembre 2024
